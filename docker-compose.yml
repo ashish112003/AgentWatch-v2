@@ -1,0 +1,81 @@
+# =============================================================================
+# AgentWatch — docker-compose.yml
+#
+# Quickstart:
+#   cp .env.example .env   # then fill in GROQ_API_KEY and JWT_SECRET_KEY
+#   docker-compose up --build
+#
+# Production detached:
+#   docker-compose up -d --build
+#
+# View logs:
+#   docker-compose logs -f agentwatch
+# =============================================================================
+
+services:
+  agentwatch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+
+    image: agentwatch:latest
+    container_name: agentwatch
+
+    ports:
+      # HOST:CONTAINER — change the host port if 8000 is already in use
+      - "${APP_PORT:-8000}:8000"
+
+    # All environment variables come from .env.
+    # Never hard-code secrets here.
+    env_file:
+      - .env
+
+    volumes:
+      # Named volume for the SQLite database — persists across container restarts.
+      # For production at scale, replace SQLite with PostgreSQL and remove this.
+      - agentwatch_data:/app/data
+
+      # Named volume for the file_reader sandbox.
+      # Drop files here to make them readable by agents with file_reader permission.
+      - agentwatch_sandbox:/app/sandbox
+
+    healthcheck:
+      test:
+        - "CMD"
+        - "python"
+        - "-c"
+        - >
+          import urllib.request, sys;
+          r = urllib.request.urlopen('http://localhost:8000/health', timeout=4);
+          sys.exit(0 if r.status == 200 else 1)
+      interval: 30s
+      timeout:  5s
+      start_period: 20s
+      retries: 3
+
+    restart: unless-stopped
+
+    # mem_limit is the docker-compose v2 way to set memory limits.
+    # (deploy.resources only works under Docker Swarm, not plain compose.)
+    mem_limit: 512m
+    memswap_limit: 512m
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# =============================================================================
+# Named volumes — Docker manages these on the host filesystem.
+# To find their location: docker volume inspect agentwatch_data
+# To back up the database:
+#   docker run --rm -v agentwatch_data:/data -v $(pwd):/backup alpine \
+#     tar czf /backup/agentwatch_backup.tar.gz /data
+# =============================================================================
+volumes:
+  agentwatch_data:
+    driver: local
+  agentwatch_sandbox:
+    driver: local

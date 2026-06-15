@@ -1,0 +1,67 @@
+# =============================================================================
+# AgentWatch — .gitignore
+# =============================================================================
+
+# ── Secrets — NEVER commit these ─────────────────────────────────────────────
+.env
+*.env.local
+.env.*
+!.env.example          # .env.example IS committed (it contains no real secrets)
+
+# ── Database — runtime files created by the app ──────────────────────────────
+*.db
+*.db-shm
+*.db-wal
+/data/
+
+# ── Sandbox — created at runtime by the file_reader tool ─────────────────────
+sandbox/*
+!sandbox/.gitkeep      # keep the directory tracked with an empty placeholder
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.installed.cfg
+lib/
+lib64/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+
+# ── Type checking / linting ───────────────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+.pyright/
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# NOTE: Do NOT ignore alembic/versions/ — migration scripts must be committed.
+# NOTE: .dockerignore IS committed — remove the old entry if it was here before.

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentWatch — AI Governance Dashboard</title>
+
+  <!-- Google Fonts: Inter (UI) + JetBrains Mono (code/numbers) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <!-- Chart.js — loaded from cdnjs, no build step required -->
+  <style>
+    /* ── Chart grid ─────────────────────────────────────── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      position: relative;
+    }
+    .chart-card-full { grid-column: 1 / -1; }
+    .chart-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .chart-canvas-wrap {
+      position: relative;
+      height: 220px;
+    }
+    .chart-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 0;
+      gap: 8px;
+      color: var(--text-muted);
+    }
+    .chart-empty .empty-icon { font-size: 28px; }
+    .chart-empty .empty-title { font-size: 13px; color: var(--text-secondary); }
+    @media (max-width: 700px) {
+      .charts-grid { grid-template-columns: 1fr; }
+      .chart-card-full { grid-column: 1; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+          integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3oD+sCoJrzXJ+yKjtkTIgLziaPZmVAwYK9e2nNk2eXIvLTPqB38Ag=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     LAYOUT SHELL
+══════════════════════════════════════════════════════════════ -->
+<div class="layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="logo-icon">🛡</div>
+      <div>
+        <div class="logo-text">AgentWatch</div>
+        <div class="logo-version">v1.0.0 · MVP</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Monitoring</div>
+
+      <div class="nav-item active" data-view="overview">
+        <span class="nav-icon">📊</span>
+        Overview
+      </div>
+
+      <div class="nav-item" data-view="violations">
+        <span class="nav-icon">⛔</span>
+        Violations
+      </div>
+
+      <div class="nav-item" data-view="audit">
+        <span class="nav-icon">📋</span>
+        Audit Log
+      </div>
+
+      <div class="nav-item" data-view="interactions">
+        <span class="nav-icon">🔗</span>
+        Interactions
+      </div>
+
+      <div class="nav-item" data-view="policies">
+        <span class="nav-icon">🛡</span>
+        Policies
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px;">Links</div>
+
+      <div class="nav-item" onclick="window.open('/docs','_blank')">
+        <span class="nav-icon">📖</span>
+        API Docs
+      </div>
+
+      <div class="nav-item" onclick="window.open('/redoc','_blank')">
+        <span class="nav-icon">📘</span>
+        ReDoc
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="connection-status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Not connected</span>
+      </div>
+      <button class="btn btn-danger btn-sm" id="btn-disconnect"
+              style="margin-top:10px; width:100%;">
+        Disconnect
+      </button>
+    </div>
+
+  </aside><!-- /sidebar -->
+
+
+  <!-- ── Main area ───────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
+
+      <div style="flex:1;">
+        <div class="topbar-title" id="topbar-title">Overview</div>
+        <div class="topbar-subtitle" id="topbar-subtitle">Platform health at a glance</div>
+      </div>
+
+      <div class="topbar-actions">
+        <span class="last-refresh" id="last-refresh">—</span>
+        <button class="btn btn-ghost" id="btn-refresh">
+          <span class="btn-icon">↻</span> Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- Scrollable content -->
+    <div class="content">
+
+      <!-- ── Auth Banner ───────────────────────────────────────── -->
+      <div class="auth-banner" id="auth-banner" style="display:none;">
+        <h2>🔐 Connect to AgentWatch</h2>
+        <p>
+          Register a new agent to get a JWT token, or paste an existing token
+          to start monitoring. The token is stored in <code>sessionStorage</code>
+          and never sent anywhere except your local FastAPI server.
+        </p>
+
+        <div class="auth-form">
+
+          <!-- Register tab -->
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border);
+                      border-radius:var(--radius-md); padding:18px;">
+            <div style="font-size:13px; font-weight:600; margin-bottom:14px; color:var(--text-primary);">
+              Register a new agent
+            </div>
+
+            <div class="form-row">
+              <div class="input-group">
+                <label>Agent name</label>
+                <input class="input-field" id="reg-name" type="text"
+                       placeholder="my-agent" autocomplete="off">
+              </div>
+              <div class="input-group">
+                <label>Secret (≥12 chars)</label>
+                <input class="input-field" id="reg-secret" type="password"
+                       placeholder="••••••••••••••" autocomplete="new-password">
+              </div>
+            </div>
+
+            <div style="margin: 12px 0 14px;">
+              <label style="font-size:12px; font-weight:500; color:var(--text-secondary);
+                            display:block; margin-bottom:8px;">Allowed tools</label>
+              <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" class="tool-checkbox" value="calculator" checked> calculator
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" class="tool-checkbox" value="weather"> weather
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" class="tool-checkbox" value="file_reader"> file_reader
+                </label>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-register">
+              🚀 Register Agent
+            </button>
+          </div>
+
+          <!-- Paste token tab -->
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border);
+                      border-radius:var(--radius-md); padding:18px;">
+            <div style="font-size:13px; font-weight:600; margin-bottom:12px; color:var(--text-primary);">
+              Use an existing token
+            </div>
+            <div class="input-group" style="margin-bottom:10px;">
+              <label>JWT access token</label>
+              <input class="input-field token-field" id="token-display" type="text"
+                     placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9…">
+            </div>
+            <p class="auth-hint">
+              Get a token by calling
+              <code>POST /agents/register</code> or from a previous
+              registration response.
+            </p>
+            <button class="btn btn-ghost" id="btn-use-token" style="margin-top:10px;">
+              Apply Token →
+            </button>
+          </div>
+
+        </div><!-- /auth-form -->
+      </div><!-- /auth-banner -->
+
+
+      <!-- ══════════════════════════════════════════════════════
+           VIEW: OVERVIEW
+      ══════════════════════════════════════════════════════ -->
+      <div class="view active" id="view-overview">
+
+        <!-- Stats grid -->
+        <div class="stats-grid">
+
+          <div class="stat-card blue">
+            <span class="stat-icon">🤖</span>
+            <div class="stat-value" id="stat-agents">—</div>
+            <div class="stat-label">Registered Agents</div>
+          </div>
+
+          <div class="stat-card green">
+            <span class="stat-icon">▶</span>
+            <div class="stat-value" id="stat-runs">—</div>
+            <div class="stat-label">Total Runs</div>
+            <div class="stat-sub" id="stat-runs-sub">loading…</div>
+          </div>
+
+          <div class="stat-card purple">
+            <span class="stat-icon">📋</span>
+            <div class="stat-value" id="stat-events">—</div>
+            <div class="stat-label">Audit Events</div>
+          </div>
+
+          <div class="stat-card red">
+            <span class="stat-icon">⛔</span>
+            <div class="stat-value" id="stat-violations">—</div>
+            <div class="stat-label">Violations</div>
+            <div class="stat-sub" id="stat-violations-sub">loading…</div>
+          </div>
+
+          <div class="stat-card orange">
+            <span class="stat-icon">📈</span>
+            <div class="stat-value" id="stat-rate">—</div>
+            <div class="stat-label">Violation Rate</div>
+          </div>
+
+          <div class="stat-card teal">
+            <span class="stat-icon">✅</span>
+            <div class="stat-value" id="stat-completed">—</div>
+            <div class="stat-label">Completed Runs</div>
+          </div>
+
+          <div class="stat-card blue">
+            <span class="stat-icon">🏅</span>
+            <div class="stat-value" id="stat-avg-trust">—</div>
+            <div class="stat-label">Avg Trust Score</div>
+            <div class="stat-sub" id="stat-avg-trust-sub">loading…</div>
+          </div>
+
+          <div class="stat-card red">
+            <span class="stat-icon">⚠️</span>
+            <div class="stat-value" id="stat-avg-risk">—</div>
+            <div class="stat-label">Avg Risk Score</div>
+            <div class="stat-sub" id="stat-avg-risk-sub">loading…</div>
+          </div>
+
+        </div><!-- /stats-grid -->
+
+        <!-- Tool latency -->
+        <div class="section-header">
+          <div class="section-title">⏱ Tool Latency</div>
+        </div>
+        <div class="latency-grid" id="latency-grid">
+          <div class="latency-card">
+            <div class="latency-header">
+              <span class="skeleton" style="width:80px; height:16px; display:block;"></span>
+            </div>
+            <div class="skeleton" style="height:8px; margin:6px 0;"></div>
+            <div class="skeleton" style="height:8px;"></div>
+          </div>
+        </div>
+
+        <!-- ── Charts ─────────────────────────────────────────────── -->
+        <div class="section-header" style="margin-top:8px;">
+          <div class="section-title">📈 Visual Analytics</div>
+        </div>
+
+        <!-- Charts grid: 2-column on desktop, 1-column on mobile -->
+        <div class="charts-grid" id="charts-grid">
+
+          <!-- Trust Distribution -->
+          <div class="chart-card" id="chart-trust-wrap">
+            <div class="chart-card-title">🏅 Trust Distribution</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="chart-trust"></canvas>
+            </div>
+            <div class="chart-empty" id="chart-trust-empty" style="display:none;">
+              <span class="empty-icon">🏅</span>
+              <span class="empty-title">No agents yet</span>
+            </div>
+          </div>
+
+          <!-- Risk Distribution -->
+          <div class="chart-card" id="chart-risk-wrap">
+            <div class="chart-card-title">⚠️ Risk Distribution</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="chart-risk"></canvas>
+            </div>
+            <div class="chart-empty" id="chart-risk-empty" style="display:none;">
+              <span class="empty-icon">⚠️</span>
+              <span class="empty-title">No agents yet</span>
+            </div>
+          </div>
+
+          <!-- Interaction Type Distribution -->
+          <div class="chart-card" id="chart-interactions-wrap">
+            <div class="chart-card-title">🔗 Interaction Types</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="chart-interactions"></canvas>
+            </div>
+            <div class="chart-empty" id="chart-interactions-empty" style="display:none;">
+              <span class="empty-icon">🔗</span>
+              <span class="empty-title">No interactions yet</span>
+            </div>
+          </div>
+
+          <!-- Tool Usage -->
+          <div class="chart-card" id="chart-tools-wrap">
+            <div class="chart-card-title">⚙ Tool Usage</div>
+            <div class="chart-canvas-wrap">
+              <canvas id="chart-tools"></canvas>
+            </div>
+            <div class="chart-empty" id="chart-tools-empty" style="display:none;">
+              <span class="empty-icon">⚙</span>
+              <span class="empty-title">No tool calls yet</span>
+            </div>
+          </div>
+
+          <!-- Violation Overview — spans full width -->
+          <div class="chart-card chart-card-full" id="chart-violations-wrap">
+            <div class="chart-card-title">⛔ Violation Overview</div>
+            <div class="chart-canvas-wrap" style="max-height:200px;">
+              <canvas id="chart-violations"></canvas>
+            </div>
+            <div class="chart-empty" id="chart-violations-empty" style="display:none;">
+              <span class="empty-icon">✅</span>
+              <span class="empty-title">No violations — system is clean</span>
+            </div>
+          </div>
+
+        </div><!-- /charts-grid -->
+
+        <!-- Quick-view: recent violations -->
+        <div class="section-header">
+          <div class="section-title">
+            ⛔ Recent Violations
+            <span class="section-count" id="overview-violations-count">—</span>
+          </div>
+          <button class="btn btn-ghost btn-sm"
+                  onclick="navigateTo('violations')">
+            View all →
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Agent</th>
+                  <th>Tool Attempted</th>
+                  <th>Input</th>
+                  <th>Denial</th>
+                </tr>
+              </thead>
+              <tbody id="overview-violations-tbody">
+                <tr><td colspan="5">
+                  <div class="empty-state">
+                    <span class="empty-icon">✅</span>
+                    <span class="empty-title">No violations yet</span>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /view-overview -->
+
+
+      <!-- ══════════════════════════════════════════════════════
+           VIEW: VIOLATIONS
+      ══════════════════════════════════════════════════════ -->
+      <div class="view" id="view-violations">
+
+        <div class="section-header">
+          <div class="section-title">
+            ⛔ All Governance Violations
+            <span class="section-count" id="violations-count">—</span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Event</th>
+                  <th>Agent</th>
+                  <th>Tool Blocked</th>
+                  <th>Attempted Input</th>
+                  <th>Denial Message</th>
+                </tr>
+              </thead>
+              <tbody id="violations-tbody">
+                <tr><td colspan="6">
+                  <div class="empty-state">
+                    <span class="empty-icon">⟳</span>
+                    <span class="empty-title">Loading…</span>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="violations-pagination"></div>
+        </div>
+
+      </div><!-- /view-violations -->
+
+
+      <!-- ══════════════════════════════════════════════════════
+           VIEW: AUDIT LOG
+      ══════════════════════════════════════════════════════ -->
+      <div class="view" id="view-audit">
+
+        <div class="section-header">
+          <div class="section-title">
+            📋 Full Audit Log
+            <span class="section-count" id="audit-count">—</span>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filters-bar">
+          <label style="font-size:12px; color:var(--text-secondary);">Filter by type:</label>
+          <select class="filter-select" id="audit-filter-type">
+            <option value="">All events</option>
+            <option value="run_start">run_start</option>
+            <option value="tool_call">tool_call</option>
+            <option value="tool_end">tool_end</option>
+            <option value="violation">violation</option>
+            <option value="run_end">run_end</option>
+            <option value="agent_handoff">agent_handoff</option>
+            <option value="policy_violation">policy_violation</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Event Type</th>
+                  <th>Agent</th>
+                  <th>Tool</th>
+                  <th>Permitted</th>
+                  <th>Input</th>
+                  <th>Latency</th>
+                </tr>
+              </thead>
+              <tbody id="audit-tbody">
+                <tr><td colspan="7">
+                  <div class="empty-state">
+                    <span class="empty-icon">⟳</span>
+                    <span class="empty-title">Loading…</span>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="audit-pagination"></div>
+        </div>
+
+      </div><!-- /view-audit -->
+
+
+
+      <!-- ══════════════════════════════════════════════════════
+           VIEW: AGENT INTERACTIONS
+      ══════════════════════════════════════════════════════ -->
+      <div class="view" id="view-interactions">
+
+        <div class="section-header">
+          <div class="section-title">
+            🔗 Agent Interactions
+            <span class="section-count" id="interactions-count">—</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px; font-size:13px; color:var(--text-secondary);">
+          Records of agent-to-agent communication — handoffs, delegations,
+          requests, and responses between registered agents.
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Type</th>
+                  <th>Source Agent</th>
+                  <th>Target Agent</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody id="interactions-tbody">
+                <tr><td colspan="5">
+                  <div class="empty-state">
+                    <span class="empty-icon">⟳</span>
+                    <span class="empty-title">Loading…</span>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="interactions-pagination"></div>
+        </div>
+
+      </div><!-- /view-interactions -->
+
+
+
+      <!-- ══════════════════════════════════════════════════════
+           VIEW: POLICIES
+      ══════════════════════════════════════════════════════ -->
+      <div class="view" id="view-policies">
+
+        <div class="section-header">
+          <div class="section-title">
+            🛡 Governance Policies
+            <span class="section-count" id="policies-count">—</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px; font-size:13px; color:var(--text-secondary);">
+          Named, reusable governance rules enforced before every agent run.
+          Assign policies to agents via <code>POST /policies/{id}/agents/{agent_id}</code>.
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Rule Type</th>
+                  <th>Severity</th>
+                  <th>Active</th>
+                  <th>Agents</th>
+                  <th>Config</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="policies-tbody">
+                <tr><td colspan="7">
+                  <div class="empty-state">
+                    <span class="empty-icon">⟳</span>
+                    <span class="empty-title">Loading…</span>
+                  </div>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="policies-pagination"></div>
+        </div>
+
+      </div><!-- /view-policies -->
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ── Toast container ──────────────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ── Scripts ──────────────────────────────────────────────── -->
+<script src="app.js"></script>
+
+
+</body>

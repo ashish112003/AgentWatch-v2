@@ -1,0 +1,72 @@
+# =============================================================================
+# AgentWatch — .dockerignore
+#
+# Files listed here are excluded from the Docker build context.
+# A smaller context = faster builds and no accidental secret inclusion.
+# =============================================================================
+
+# ── Secrets — must never enter the image ─────────────────────────────────────
+.env
+*.env.local
+.env.*
+!.env.example
+
+# ── Runtime data — created inside the container, not needed at build time ─────
+*.db
+*.db-shm
+*.db-wal
+/data/
+/sandbox/
+
+# ── Python bytecode ───────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Tests — not needed in the production image ────────────────────────────────
+tests/
+pytest.ini
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ── Version control ───────────────────────────────────────────────────────────
+.git/
+.gitignore
+
+# ── IDE and OS artifacts ──────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Documentation ─────────────────────────────────────────────────────────────
+README.md
+CHANGELOG.md
+docs/
+
+# ── Type checking and linting cache ──────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+.pyright/
+
+# ── Docker files themselves (don't copy Dockerfile into the image) ────────────
+Dockerfile
+docker-compose.yml
+.dockerignore
