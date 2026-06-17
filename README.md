@@ -151,21 +151,7 @@ pip install pytest-cov
 pytest tests/ --cov=app --cov-report=term-missing
 ```
 
----
 
-## Implemented Phases
-
-| Phase | Feature | Status |
-|-------|---------|--------|
-| 1 | Tool Expansion (10 tools) | ✅ Complete |
-| 2 | Agent-to-Agent Interaction Tracking | ✅ Complete |
-| 3 | Policy Engine (5 rule types) | ✅ Complete |
-| 4 | Trust Score (0–100) | ✅ Complete |
-| 5 | Risk Score (0–100) | ✅ Complete |
-| 6 | Visual Analytics Dashboard (Chart.js) | ✅ Complete |
-| 7 | PostgreSQL Support | 🔜 Planned |
-
----
 
 ## Security Checklist
 
