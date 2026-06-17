@@ -146,8 +146,8 @@ Client
 ---
 
 ## Governance Enforcement Flow
+<img width="715" height="483" alt="image" src="https://github.com/user-attachments/assets/5b483498-2387-4988-9bcc-cff6e0f5b820" />
 
-<img width="722" height="483" alt="image" src="https://github.com/user-attachments/assets/8ff7eb7d-3552-4c53-9820-61a7afcc819a" />
 
 
 ```
@@ -261,7 +261,8 @@ Severity feeds directly into Trust Score deductions and Risk Score additions.
 
 ### Phase 5 - Risk Score
 
-<img width="723" height="424" alt="image" src="https://github.com/user-attachments/assets/64548cd1-c8f9-480a-81f1-d1db51e2bbb4" />
+<img width="721" height="413" alt="image" src="https://github.com/user-attachments/assets/e502966e-0036-49eb-9c38-9685faa4458a" />
+
 
 
 See [Trust & Risk Scoring](#trust--risk-scoring) section below.
