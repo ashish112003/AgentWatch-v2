@@ -54,9 +54,7 @@
       .chart-card-full { grid-column: 1; }
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
-          integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3oD+sCoJrzXJ+yKjtkTIgLziaPZmVAwYK9e2nNk2eXIvLTPqB38Ag=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -189,16 +187,37 @@
               <label style="font-size:12px; font-weight:500; color:var(--text-secondary);
                             display:block; margin-bottom:8px;">Allowed tools</label>
               <div style="display:flex; gap:16px; flex-wrap:wrap;">
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-                  <input type="checkbox" class="tool-checkbox" value="calculator" checked> calculator
-                </label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-                  <input type="checkbox" class="tool-checkbox" value="weather"> weather
-                </label>
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-                  <input type="checkbox" class="tool-checkbox" value="file_reader"> file_reader
-                </label>
-              </div>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="calculator" checked> calculator
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="weather"> weather
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="file_reader"> file_reader
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="datetime_tool"> datetime_tool
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="currency_converter"> currency_converter
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="wikipedia_search"> wikipedia_search
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="text_summarizer"> text_summarizer
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="word_counter"> word_counter
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="json_formatter"> json_formatter
+  </label>
+  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+    <input type="checkbox" class="tool-checkbox" value="uuid_generator"> uuid_generator
+  </label>
+</div>
             </div>
 
             <button class="btn btn-primary" id="btn-register">
