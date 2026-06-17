@@ -3,11 +3,15 @@
 > **AI Agent Runtime Governance & Observability Platform**  
 > FastAPI · LangGraph · SQLAlchemy · Chart.js · JWT · Groq Llama 3.3 70B
 
-[![Tests](https://img.shields.io/badge/tests-439%20passing-brightgreen)](#testing)
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](#quickstart)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688)](#api-reference)
-[![LangGraph](https://img.shields.io/badge/LangGraph-1.2.4-orange)](#architecture)
-[![License](https://img.shields.io/badge/license-MIT-purple)](#license)
+<img width="1917" height="883" alt="image" src="https://github.com/user-attachments/assets/40356be4-6dd5-47db-b12e-e6e74f142ae0" />
+
+<img width="1919" height="875" alt="image" src="https://github.com/user-attachments/assets/841e3dc2-153c-455c-bccc-cd539d61dd1d" />
+<img width="1905" height="875" alt="image" src="https://github.com/user-attachments/assets/31519519-6ff3-42c2-a18b-6d85d0a4b4d5" />
+
+<img width="1911" height="882" alt="image" src="https://github.com/user-attachments/assets/a7e243c1-4054-4f98-8a06-45d355788e20" />
+
+<img width="1905" height="883" alt="image" src="https://github.com/user-attachments/assets/de8deb50-6522-4aea-a7a9-ed5495ac7df0" />
+
 
 AgentWatch is a production-grade AI governance platform that wraps every LLM agent run with a full observability and enforcement layer. It tracks every tool call, enforces named governance policies, detects violations, scores agent behaviour with Trust and Risk metrics, and visualises everything in a live Chart.js dashboard.
 
