@@ -3,6 +3,12 @@
 > **AI Agent Runtime Governance & Observability Platform**  
 > FastAPI · LangGraph · SQLAlchemy · Chart.js · JWT · Groq Llama 3.3 70B
 
+
+
+🚀 **Live Demo**: https://agentwatch-v2-production.up.railway.app/dashboard/
+
+
+
 <img width="1917" height="883" alt="image" src="https://github.com/user-attachments/assets/40356be4-6dd5-47db-b12e-e6e74f142ae0" />
 
 <img width="1919" height="875" alt="image" src="https://github.com/user-attachments/assets/841e3dc2-153c-455c-bccc-cd539d61dd1d" />
