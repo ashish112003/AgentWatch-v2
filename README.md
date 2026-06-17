@@ -219,7 +219,7 @@ Key design: **blocked tools remain visible in the LLM's schema** — the LLM can
 
 ## Features by Phase
 
-### Phase 1 — Tool Expansion (10 tools)
+### Phase 1 - Tool Expansion (10 tools)
 
 All tools follow the LangChain `@tool` decorator pattern, are self-contained, return strings, and automatically participate in governance, audit, and analytics.
 
@@ -236,13 +236,13 @@ All tools follow the LangChain `@tool` decorator pattern, are self-contained, re
 | `json_formatter` | format / validate / minify / keys / stats |
 | `uuid_generator` | 1–20 UUID v4 values, optional uppercase/no-hyphens/braces |
 
-### Phase 2 — Agent-to-Agent Interaction Tracking
+### Phase 2 - Agent-to-Agent Interaction Tracking
 
 Record directed interactions between agents. Every interaction automatically emits an `agent_handoff` audit event backed by a real `AgentRun` row (no FK sentinel values).
 
 **Interaction types:** `handoff` · `delegation` · `request` · `response`
 
-### Phase 3 — Policy Engine (5 Rule Types)
+### Phase 3 - Policy Engine (5 Rule Types)
 
 Named, reusable rules assigned to agents in a many-to-many relationship. Evaluated **before** GovernanceEnforcer on every run.
 
@@ -257,16 +257,16 @@ Named, reusable rules assigned to agents in a many-to-many relationship. Evaluat
 **Severity levels:** `LOW` · `MEDIUM` · `HIGH` · `CRITICAL`  
 Severity feeds directly into Trust Score deductions and Risk Score additions.
 
-### Phase 4 — Trust Score
+### Phase 4 - Trust Score
 
-### Phase 5 — Risk Score
+### Phase 5 - Risk Score
 
 <img width="723" height="424" alt="image" src="https://github.com/user-attachments/assets/64548cd1-c8f9-480a-81f1-d1db51e2bbb4" />
 
 
 See [Trust & Risk Scoring](#trust--risk-scoring) section below.
 
-### Phase 6 — Visual Analytics Dashboard
+### Phase 6 - Visual Analytics Dashboard
 
 Five Chart.js charts powered by a single `GET /analytics/stats` call, with lifecycle management (`_destroyChart` / `_charts` registry) to prevent canvas-reuse errors on refresh.
 
