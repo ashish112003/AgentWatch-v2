@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,7 +55,9 @@
       .chart-card-full { grid-column: 1; }
     }
   </style>
-   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+          integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3oD+sCoJrzXJ+yKjtkTIgLziaPZmVAwYK9e2nNk2eXIvLTPqB38Ag=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
 
@@ -187,37 +190,16 @@
               <label style="font-size:12px; font-weight:500; color:var(--text-secondary);
                             display:block; margin-bottom:8px;">Allowed tools</label>
               <div style="display:flex; gap:16px; flex-wrap:wrap;">
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="calculator" checked> calculator
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="weather"> weather
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="file_reader"> file_reader
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="datetime_tool"> datetime_tool
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="currency_converter"> currency_converter
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="wikipedia_search"> wikipedia_search
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="text_summarizer"> text_summarizer
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="word_counter"> word_counter
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="json_formatter"> json_formatter
-  </label>
-  <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
-    <input type="checkbox" class="tool-checkbox" value="uuid_generator"> uuid_generator
-  </label>
-</div>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" class="tool-checkbox" value="calculator" checked> calculator
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" class="tool-checkbox" value="weather"> weather
+                </label>
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" class="tool-checkbox" value="file_reader"> file_reader
+                </label>
+              </div>
             </div>
 
             <button class="btn btn-primary" id="btn-register">
@@ -395,32 +377,7 @@
           </div>
 
         </div><!-- /charts-grid -->
-    <!-- ── Run Agent Panel ─────────────────────────────────── -->
-        <div class="section-header">
-          <div class="section-title">🤖 Run Agent</div>
-        </div>
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:24px;">
-          <div style="display:flex;flex-direction:column;gap:12px;">
-            <div class="input-group">
-              <label>Prompt</label>
-              <textarea id="run-prompt" class="input-field"
-                rows="3"
-                placeholder="e.g. What is 25 * 48? What day is today?"
-                style="resize:vertical;font-family:var(--font-ui);"></textarea>
-            </div>
-            <div style="display:flex;align-items:center;gap:12px;">
-              <button class="btn btn-primary" id="btn-run-agent">
-                ▶ Run Agent
-              </button>
-              <span id="run-status" style="font-size:13px;color:var(--text-secondary);"></span>
-            </div>
-            <div id="run-result" style="display:none;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.6;"></div>
-          </div>
-        </div>
 
-
-
-        
         <!-- Quick-view: recent violations -->
         <div class="section-header">
           <div class="section-title">
@@ -617,9 +574,77 @@
           </div>
         </div>
 
-        <div style="margin-bottom:14px; font-size:13px; color:var(--text-secondary);">
-          Named, reusable governance rules enforced before every agent run.
-          Assign policies to agents via <code>POST /policies/{id}/agents/{agent_id}</code>.
+        <!-- ── Create Policy Form ─────────────────────────────── -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:24px;">
+          <div style="font-size:14px;font-weight:600;margin-bottom:16px;color:var(--text-primary);">➕ Create New Policy</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div class="input-group">
+              <label>Policy Name</label>
+              <input class="input-field" id="policy-name" type="text" placeholder="e.g. block-sensitive-words">
+            </div>
+            <div class="input-group">
+              <label>Rule Type</label>
+              <select class="input-field filter-select" id="policy-rule-type">
+                <option value="prompt_guard">prompt_guard — block keywords in prompts</option>
+                <option value="tool_deny">tool_deny — block a specific tool</option>
+                <option value="tool_allow">tool_allow — only allow a specific tool</option>
+                <option value="rate_limit">rate_limit — limit tool calls per run</option>
+                <option value="time_window">time_window — restrict to hours of day</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Severity</label>
+              <select class="input-field filter-select" id="policy-severity">
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH" selected>HIGH</option>
+                <option value="CRITICAL">CRITICAL</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Description (optional)</label>
+              <input class="input-field" id="policy-description" type="text" placeholder="What does this policy do?">
+            </div>
+          </div>
+
+          <!-- Dynamic config hint -->
+          <div class="input-group" style="margin-bottom:12px;">
+            <label>Rule Config (JSON) <span id="policy-config-hint" style="color:var(--text-muted);font-size:11px;margin-left:8px;"></span></label>
+            <input class="input-field" id="policy-config" type="text" placeholder='{"blocked_keywords":["password","hack","secret"]}' style="font-family:var(--font-mono);font-size:12px;">
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn btn-primary" id="btn-create-policy">🛡 Create Policy</button>
+            <span id="policy-create-status" style="font-size:13px;color:var(--text-secondary);"></span>
+          </div>
+        </div>
+
+        <!-- ── Assign Policy to Agent Form ────────────────────── -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:24px;" id="assign-policy-wrap">
+          <div style="font-size:14px;font-weight:600;margin-bottom:16px;color:var(--text-primary);">🔗 Assign Policy to Agent</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div class="input-group">
+              <label>Select Policy</label>
+              <select class="input-field filter-select" id="assign-policy-select">
+                <option value="">— select a policy —</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Agent ID</label>
+              <input class="input-field" id="assign-agent-id" type="text" placeholder="Paste agent UUID here">
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn btn-ghost" id="btn-assign-policy">🔗 Assign to Agent</button>
+            <span id="policy-assign-status" style="font-size:13px;color:var(--text-secondary);"></span>
+          </div>
+          <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">
+            Your agent ID is shown in the bottom-left when connected. Or decode your JWT at jwt.io to find it.
+          </p>
+        </div>
+
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+          All active policies below are enforced before every agent run.
         </div>
 
         <div class="table-wrap">
