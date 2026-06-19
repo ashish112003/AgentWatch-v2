@@ -7440,7 +7440,7 @@ async function refreshOverview() {
   state.data.stats = data;
   renderStats(data);
   renderLatency(data.tool_latency || []);
-  renderAllCharts(data);   // Phase 6 charts
+  setTimeout(() => renderAllCharts(data), 100);
 
   // Fetch the 5 most recent violations for the overview preview panel.
   // Separate lightweight call (limit=5) made only when overview is active.
