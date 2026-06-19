@@ -7049,7 +7049,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (statusEl) statusEl.textContent = 'Sending to agent…';
     if (resultEl) resultEl.style.display = 'none';
 
-    const { ok, data, error } = await apiFetch('/agents/run', {
+    const { ok, data, error } = await apiFetch('/runs', {
       method: 'POST',
       body: JSON.stringify({ prompt }),
     });
