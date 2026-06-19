@@ -8700,6 +8700,9 @@ async function registerAgent(name, secret, tools) {
     body: JSON.stringify({ name, secret, allowed_tools: tools }),
   });
 }
+async function fetchAgents() {
+  return apiFetch('/agents?limit=100');
+}
 
 /* ═══════════════════════════════════════════════════════════════
    3. NAVIGATION
@@ -8736,7 +8739,7 @@ function navigateTo(viewId) {
   if (viewId === 'violations')   refreshViolations();
   if (viewId === 'audit')        refreshAuditLog();
   if (viewId === 'interactions') refreshInteractions();
-  if (viewId === 'policies')     refreshPolicies();
+  if (viewId === 'policies')     { refreshPolicies(); refreshAgentsList(); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -9368,7 +9371,55 @@ function renderPolicies(data) {
     state.filters.policiesPage = p; refreshPolicies();
   });
 }
+/* ═══════════════════════════════════════════════════════════════
+   7d. REGISTERED AGENTS LIST (shown in Policies tab)
+═══════════════════════════════════════════════════════════════ */
 
+async function refreshAgentsList() {
+  const wrap = document.getElementById('agents-list-wrap');
+  if (!wrap) return;
+
+  const { ok, data } = await fetchAgents();
+  if (!ok || !data || !data.agents || data.agents.length === 0) {
+    wrap.innerHTML = `<div class="empty-state" style="padding:16px;">
+      <span class="empty-icon">🤖</span>
+      <span class="empty-title">No agents registered yet</span>
+    </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:8px 10px;color:var(--text-secondary);font-weight:500;">Name</th>
+          <th style="text-align:left;padding:8px 10px;color:var(--text-secondary);font-weight:500;">Agent ID</th>
+          <th style="text-align:left;padding:8px 10px;color:var(--text-secondary);font-weight:500;">Allowed Tools</th>
+          <th style="text-align:left;padding:8px 10px;color:var(--text-secondary);font-weight:500;">Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.agents.map(a => `
+          <tr style="border-bottom:1px solid var(--border);cursor:pointer;"
+              onclick="document.getElementById('assign-agent-id').value='${escHtml(a.id)}';toast('Agent ID copied to Assign form','success');"
+              title="Click to use this agent ID in the Assign form">
+            <td style="padding:10px;font-weight:600;color:var(--text-primary);">
+              ${escHtml(a.name)}
+              ${a.id === state.agentId ? '<span style="margin-left:6px;font-size:11px;color:var(--accent-green);">● you</span>' : ''}
+            </td>
+            <td style="padding:10px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">
+              ${escHtml(a.id)}
+            </td>
+            <td style="padding:10px;color:var(--text-secondary);font-size:12px;">
+              ${(a.allowed_tools || []).map(t => `<span class="badge badge-tool" style="margin:2px;">${escHtml(t)}</span>`).join('')}
+            </td>
+            <td style="padding:10px;color:var(--text-muted);font-size:12px;">
+              ${relativeTime(a.created_at)}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
 /* ═══════════════════════════════════════════════════════════════
    8. UTILITIES
 ═══════════════════════════════════════════════════════════════ */
