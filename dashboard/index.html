@@ -395,7 +395,32 @@
           </div>
 
         </div><!-- /charts-grid -->
+    <!-- ── Run Agent Panel ─────────────────────────────────── -->
+        <div class="section-header">
+          <div class="section-title">🤖 Run Agent</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:24px;">
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="input-group">
+              <label>Prompt</label>
+              <textarea id="run-prompt" class="input-field"
+                rows="3"
+                placeholder="e.g. What is 25 * 48? What day is today?"
+                style="resize:vertical;font-family:var(--font-ui);"></textarea>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <button class="btn btn-primary" id="btn-run-agent">
+                ▶ Run Agent
+              </button>
+              <span id="run-status" style="font-size:13px;color:var(--text-secondary);"></span>
+            </div>
+            <div id="run-result" style="display:none;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.6;"></div>
+          </div>
+        </div>
 
+
+
+        
         <!-- Quick-view: recent violations -->
         <div class="section-header">
           <div class="section-title">
