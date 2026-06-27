@@ -213,3 +213,4 @@ async def list_agents(
     summaries = [AgentSummary.model_validate(a) for a in agents]
 
     return AgentListResponse(agents=summaries, total=total)
+
